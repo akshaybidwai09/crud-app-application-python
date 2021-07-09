@@ -41,82 +41,89 @@
         </ul> 
 
         <script>
-            const checkboxResults = document.querySelectorAll('.check-results');
-            for(let i=0;i<checkboxResults.length;i++){
-                const check = checkboxResults[i];
-                check.onchange = function(e){
-                    console.log('event',e);
-                    const newCompleted = e.target.checked;
-                    const todoId = e.target.dataset['id']
-                    fetch('/myapp/'+ todoId +'/set-completed',{
-                        method: 'POST',
-                        body:JSON.stringify({
-                            'completed':newCompleted
-                        }),
-                        headers:{
-                            'Content-Type': 'application/json'
+                function recall(){
+                    const checkboxes = document.querySelectorAll('.check-results');
+                        for (let i = 0; i < checkboxes.length; i++) {
+                            const check = checkboxes[i];
+                            check.onchange = function(e) {
+                                const newCompleted = e.target.checked;
+                                const todoId = e.target.dataset['id'];
+                                fetch('/myapp/' + todoId + '/set-completed', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    'completed': newCompleted
+                                }),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                                })
+                                .then(function() {
+                                document.getElementById('error').className = 'hidden';
+                                })
+                                .catch(function() {
+                                document.getElementById('error').className = '';
+                                })
+                            }
                         }
-                    })
-                    .then(function(){
-                        document.getElementById('error').className = 'hidden';
-                    })
-                    .catch(function(){
-                    document.getElementById('error').className = '';
-                    })
+                        const deletebutton = document.querySelectorAll('.delete-action');
+                        for(let i=0;i<deletebutton.length;i++){
+                            const btn = deletebutton[i];
+                            btn.onclick = function(e){
+                                const id = e.target.dataset['id'];
+                                fetch('/myapp/' + id,{
+                                    method:'DELETE'
+                                }).then(function () {
+                                        const item = e.target.parentElement;
+                                        item.remove();
+                                        document.getElementById("error").className = "hidden";
+                                    })
+                            }
+                        }
                 }
-            }
-            const deletebutton = document.querySelectorAll('.delete-action');
-            for(let i=0;i<deletebutton.length;i++){
-                const btn = deletebutton[i];
-                btn.onclick = function(e){
-                    const id = e.target.dataset['id'];
-                    fetch('/myapp/' + id,{
-                        method:'DELETE'
-                    }).then(function () {
-                          const item = e.target.parentElement;
-                          item.remove();
-                          document.getElementById("error").className = "hidden";
-                     })
-                }
-            }
-            document.getElementById('form').onsubmit = function(e) {
-            e.preventDefault();
-            fetch('/myapp/create',{
-                    method : 'POST',
-                    body: JSON.stringify({
-                        'description': document.getElementById('description').value
-                    }),
-                    headers:{
-                        'Content-Type': 'application/json'     
-                    }                   
-                })
-                .then(function(response){
-                    return response.json();
-                })
-                .then(function(jsonResponse) {
-                    const li = document.createElement('li');
-                    const checkbox = document.createElement('input');
-                    checkbox.className = 'check-completed';
-                    checkbox.type = 'checkbox';
-                    checkbox.setAttribute('data-id', jsonResponse.id);
-                    li.appendChild(checkbox);
+             
+                    
+                    document.getElementById('form').onsubmit = function(e) {
+                    e.preventDefault();
+                    fetch('/myapp/create',{
+                            method : 'POST',
+                            body: JSON.stringify({
+                                'description': document.getElementById('description').value
+                            }),
+                            headers:{
+                                'Content-Type': 'application/json'     
+                            }                   
+                        })
+                        .then(function(response){
+                            return response.json();
+                        })
+                        .then(function(jsonResponse) {
+                            
+                            const li = document.createElement('li');
+                            const checkbox = document.createElement('input');
+                            checkbox.className = 'check-completed';
+                            checkbox.type = 'checkbox';
+                            checkbox.setAttribute('data-id', jsonResponse.id);
+                            li.appendChild(checkbox);
+                            const text = document.createTextNode(' ' + jsonResponse.description);
+                            li.appendChild(text);
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-button';
+                            deleteBtn.setAttribute('data-id', jsonResponse.id);
+                            deleteBtn.innerHTML = '&cross;';
+                            li.appendChild(deleteBtn);
+                            document.getElementById('myapp').appendChild(li);
+                            document.getElementById('error').className = 'hidden';
 
-                    const text = document.createTextNode(' ' + jsonResponse.description);
-                    li.appendChild(text);
+                            recall();
 
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-button';
-                    deleteBtn.setAttribute('data-id', jsonResponse.id);
-                    deleteBtn.innerHTML = '&cross;';
-                    li.appendChild(deleteBtn);
-
-                    document.getElementById('myapp').appendChild(li);
-                    document.getElementById('error').className = 'hidden';
-                })
-                .catch(function() {
-                    document.getElementById('error').className = '';
-                })
-            }
+                           
+                        })
+                        .catch(function() {
+                            document.getElementById('error').className = '';
+                        })
+                        
+                    }
+                    recall();
         </script>    
     </body>  
 </html>     
@@ -141,4 +148,3 @@
     //     </body> 
     // </html>     
      -->
-    
