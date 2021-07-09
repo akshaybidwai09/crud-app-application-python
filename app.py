@@ -26,6 +26,7 @@ def create_todo():
   try:
     body = {}
     description = request.get_json()['description']
+    id = request.get_json()['']
     todo = Todo(description = description)
     db.session.add(todo)
     db.session.commit()
@@ -65,8 +66,7 @@ def delete_item(todo_id):
     db.session.rollback()
   finally:
     db.session.close()
-  return jsonify({'success':True})
-     
+  return jsonify({'success':True})   
 @app.route('/')
 def index():
     return render_template('index.html',data=Todo.query.order_by('id').all())
